@@ -30,11 +30,11 @@ install_version() {
 	(
 		if command -v zeus >/dev/null 2>&1; then
 			# 提取 zeus 的版本号
-			current_version=$(zeus -v | grep -oP '\d+\.\d+\.\d+')
+			current_version=$(zeus -v | grep -oE '\d+\.\d+\.\d+' | head -n 1)
 
 			# 比较当前版本和预期版本
 			if [ "$current_version" != "$version" ]; then
-				npm install @zeppos/zeus-cli@version
+				npm install @zeppos/zeus-cli@$version
 			fi
 		fi
 
