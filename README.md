@@ -8,6 +8,8 @@
 
 # Contents
 
+- [asdf-zeus-cli  ](#asdf-zeus-cli--)
+- [Contents](#contents)
 - [Dependencies](#dependencies)
 - [Install](#install)
 - [Contributing](#contributing)
@@ -37,13 +39,13 @@ zeus-cli:
 asdf list-all zeus-cli
 
 # Install specific version
-asdf install zeus-cli latest
+asdf install zeus-cli
 
 # Set a version globally (on your ~/.tool-versions file)
 asdf global zeus-cli latest
 
 # Now zeus-cli commands are available
-zeus-cli -v
+zeus -v
 ```
 
 Check [asdf](https://github.com/asdf-vm/asdf) readme for more instructions on how to

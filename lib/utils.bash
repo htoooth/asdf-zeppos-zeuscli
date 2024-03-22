@@ -2,8 +2,6 @@
 
 set -euo pipefail
 
-# TODO: Ensure this is the correct GitHub homepage where releases can be downloaded for zeus-cli.
-GH_REPO="https://www.npmjs.com/package/@zeppos/zeus-cli"
 TOOL_NAME="zeus-cli"
 TOOL_TEST="zeus-cli -v"
 
@@ -12,63 +10,36 @@ fail() {
 	exit 1
 }
 
-curl_opts=(-fsSL)
-
-# NOTE: You might want to remove this if zeus-cli is not hosted on GitHub releases.
-if [ -n "${GITHUB_API_TOKEN:-}" ]; then
-	curl_opts=("${curl_opts[@]}" -H "Authorization: token $GITHUB_API_TOKEN")
-fi
-
 sort_versions() {
 	sed 'h; s/[+-]/./g; s/.p\([[:digit:]]\)/.z\1/; s/$/.z/; G; s/\n/ /' |
 		LC_ALL=C sort -t. -k 1,1 -k 2,2n -k 3,3n -k 4,4n -k 5,5n | awk '{print $2}'
 }
 
-list_github_tags() {
-	git ls-remote --tags --refs "$GH_REPO" |
-		grep -o 'refs/tags/.*' | cut -d/ -f3- |
-		sed 's/^v//' # NOTE: You might want to adapt this sed to remove non-version strings from tags
-}
-
 list_all_versions() {
-	# TODO: Adapt this. By default we simply list the tag names from GitHub releases.
-	# Change this function if zeus-cli has other means of determining installable versions.
-	list_github_tags
+	npm view @zeppos/zeus-cli versions --json | jq -r '.[]'
 }
 
 download_release() {
-	local version filename url
-	version="$1"
-	filename="$2"
-
-	# TODO: Adapt the release URL convention for zeus-cli
-	url="$GH_REPO/archive/v${version}.tar.gz"
-
-	echo "* Downloading $TOOL_NAME release $version..."
-	curl "${curl_opts[@]}" -o "$filename" -C - "$url" || fail "Could not download $url"
+	local version="$1"
+	npm install -g @zeppos/zeus-cli@$version
 }
 
 install_version() {
-	local install_type="$1"
-	local version="$2"
-	local install_path="${3%/bin}/bin"
-
-	if [ "$install_type" != "version" ]; then
-		fail "asdf-$TOOL_NAME supports release installs only"
-	fi
+	local version="$1"
 
 	(
-		mkdir -p "$install_path"
-		cp -r "$ASDF_DOWNLOAD_PATH"/* "$install_path"
+		if command -v zeus >/dev/null 2>&1; then
+			# 提取 zeus 的版本号
+			current_version=$(zeus -v | grep -oP '\d+\.\d+\.\d+')
 
-		# TODO: Assert zeus-cli executable exists.
-		local tool_cmd
-		tool_cmd="$(echo "$TOOL_TEST" | cut -d' ' -f1)"
-		test -x "$install_path/$tool_cmd" || fail "Expected $install_path/$tool_cmd to be executable."
+			# 比较当前版本和预期版本
+			if [ "$current_version" != "$version" ]; then
+				npm install @zeppos/zeus-cli@version
+			fi
+		fi
 
 		echo "$TOOL_NAME $version installation was successful!"
 	) || (
-		rm -rf "$install_path"
 		fail "An error occurred while installing $TOOL_NAME $version."
 	)
 }
