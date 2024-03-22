@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.1](https://github.com/htoooth/asdf-zeppos-zeuscli/compare/v1.0.0...v1.0.1) (2024-03-22)
+
+
+### Bug Fixes
+
+* grep opts ([53544a4](https://github.com/htoooth/asdf-zeppos-zeuscli/commit/53544a4cf2bc7a049ef6a78bd93b6c23c9777656))
+
 ## 1.0.0 (2024-03-22)
 
 
